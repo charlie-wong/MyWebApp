@@ -1,0 +1,23 @@
+<html>
+    <body>
+        <p>中文页面</p>
+        {if logged-in}
+            你好: {name}
+        {else logged-in}
+            当前未登录了！
+            <br>
+            <a href="/login">点击</a>前往登录界面！
+        {end logged-in}
+
+        <p>
+        Liste des noms :
+        <table>
+            {loop row}
+                <tr>
+                    <td>{row.number}</td>
+                    <td>{row.name}</td>
+                </tr>
+            {end row}
+        </table>
+    </body>
+</html>
