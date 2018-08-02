@@ -13,13 +13,17 @@ RequestMapper::RequestMapper(QObject* parent)
 
 void RequestMapper::service(HttpRequest& request, HttpResponse& response)
 {
-    QByteArray path = request.getPath();
-    qDebug("RequestMapper: path=%s", path.data());
+    qInfo("RequestMapper:   path=%s", request.getPath().data());
+    qInfo("RequestMapper: method=%s", request.getMethod().data());
+    qInfo("RequestMapper: length=%s", request.getHeader("Content-Length").data());
+    qInfo("RequestMapper:   body=\n%s", request.getBody().data());
 
+    QByteArray path = request.getPath();
     HttpSession session = sessionStore->getSession(request, response, false);
     QString username = session.get("username").toString();
     logger->set("currentUser", username);
 
+#if 0
     QByteArray sessionId = sessionStore->getSessionId(request, response);
     if(sessionId.isEmpty() && path != "/login")
     {
@@ -27,6 +31,7 @@ void RequestMapper::service(HttpRequest& request, HttpResponse& response)
         response.redirect("/login");
         return;
     }
+#endif
 
     if(path=="/" || path=="/hello")
     {
@@ -56,9 +61,13 @@ void RequestMapper::service(HttpRequest& request, HttpResponse& response)
     {
         dataTemplateController.service(request, response);
     }
+    else if(path=="/read_iaq")
+    {
+        helloWorldController.service(request, response);
+    }
     else
     {
-        response.setStatus(404,"Not found");
+        response.setStatus(404, "Not found");
         response.write("The URL is wrong, no such document.");
     }
 

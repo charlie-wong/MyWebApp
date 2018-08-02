@@ -83,6 +83,9 @@ static void startHttpsListener(QCoreApplication *app, QString &configFileName)
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+    qInfo("####################################");
+    qInfo("#    HTTP/HTTPS Server - v1.0.0    #");
+    qInfo("####################################");
 
     // Load the configuration file
     QString configFileName = searchConfigFile();
