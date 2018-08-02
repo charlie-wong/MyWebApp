@@ -1,5 +1,6 @@
 #include "requestmapper.h"
 
+Logger* RequestMapper::logger = nullptr;
 TemplateCache* RequestMapper::templateCache = nullptr;
 HttpSessionStore* RequestMapper::sessionStore = nullptr;
 StaticFileController* RequestMapper::staticFileController = nullptr;
@@ -14,6 +15,10 @@ void RequestMapper::service(HttpRequest& request, HttpResponse& response)
 {
     QByteArray path = request.getPath();
     qDebug("RequestMapper: path=%s", path.data());
+
+    HttpSession session = sessionStore->getSession(request, response, false);
+    QString username = session.get("username").toString();
+    logger->set("currentUser", username);
 
     QByteArray sessionId = sessionStore->getSessionId(request, response);
     if(sessionId.isEmpty() && path != "/login")

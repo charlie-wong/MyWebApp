@@ -11,6 +11,7 @@
 #include "staticfilecontroller.h"
 #include "templatecache.h"
 #include "datatemplatecontroller.h"
+#include "logger.h"
 
 using namespace stefanfrings;
 
@@ -18,6 +19,7 @@ class RequestMapper : public HttpRequestHandler
 {
     Q_OBJECT
 public:
+    static Logger* logger;
     static HttpSessionStore* sessionStore;
     static StaticFileController* staticFileController;
     static TemplateCache* templateCache;

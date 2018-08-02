@@ -35,7 +35,7 @@ QString searchConfigFile()
                     file.setFileName(binDir + "/../../" + appName + "/etc/webapp.ini");
                     if(!file.exists())
                     {
-                        file.setFileName(binDir + "/../../../../../" + appName+"/etc/webapp.ini");
+                        file.setFileName(binDir + "/../../../" + appName+"/etc/webapp.ini");
                         if(!file.exists())
                         {
                             file.setFileName(QDir::rootPath() + "etc/webapp.ini");
@@ -58,19 +58,41 @@ QString searchConfigFile()
     }
 }
 
+static void startHttpListener(QCoreApplication *app, QString &configFileName)
+{
+    // HTTP server
+    QSettings* listenerSettings =
+        new QSettings(configFileName, QSettings::IniFormat, app);
+    listenerSettings->beginGroup("listener-http");
+
+    // Start the HTTP server
+    new HttpListener(listenerSettings, new RequestMapper(app), app);
+}
+
+static void startHttpsListener(QCoreApplication *app, QString &configFileName)
+{
+    // HTTPs server
+    QSettings* listenerSettings =
+        new QSettings(configFileName, QSettings::IniFormat, app);
+    listenerSettings->beginGroup("listener-https");
+
+    // Start the HTTPs server
+    new HttpListener(listenerSettings, new RequestMapper(app), app);
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
     // Load the configuration file
-    QString configFileName=searchConfigFile();
+    QString configFileName = searchConfigFile();
 
     // Configure logging
     QSettings* logSettings =
         new QSettings(configFileName, QSettings::IniFormat, &app);
     logSettings->beginGroup("logging");
-    FileLogger* logger = new FileLogger(logSettings, 10000, &app);
-    logger->installMsgHandler();
+    RequestMapper::logger = new FileLogger(logSettings, 10000, &app);
+    RequestMapper::logger->installMsgHandler();
 
     // Log the library version
     qDebug("QtWebApp has version %s", getQtWebAppLibVersion());
@@ -96,13 +118,8 @@ int main(int argc, char *argv[])
     RequestMapper::templateCache =
         new TemplateCache(templateSettings,&app);
 
-    // HTTP server
-    QSettings* listenerSettings =
-        new QSettings(configFileName, QSettings::IniFormat, &app);
-    listenerSettings->beginGroup("listener");
-
-    // Start the HTTP server
-    new HttpListener(listenerSettings, new RequestMapper(&app), &app);
+    startHttpListener(&app, configFileName);
+    startHttpsListener(&app, configFileName);
 
     return app.exec();
 }

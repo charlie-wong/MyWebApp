@@ -8,6 +8,8 @@ QT  += network
 
 TARGET = MyWebApp
 
+CONFIG += debug
+
 CONFIG   += console c++11
 
 TEMPLATE = app

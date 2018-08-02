@@ -1,0 +1,32 @@
+使用 server.key 生成输出请求证书(CSR)文件 certreq.csr(当前目录)
+Country Name：                   //您所在国家的ISO标准代号，中国为CN   
+State or Province Name：    //您单位所在地省/自治区/直辖市   
+Locality Name：                   //您单位所在地的市/县/区   
+Organization Name：           //您单位/机构/企业合法的名称   
+Organizational Unit Name： //部门名称   
+Common Name：                 //通用名，例如：www.itrus.com.cn。
+// 此项必须与您访问提供SSL服务的服务
+// 器时所应用的域名完全匹配。   
+Email Address：                   //您的邮件地址，不必输入，直接回车跳过   
+"extra"attributes：                //以下信息不必输入，回车跳过直到命令执行完毕
+
+########################################
+# 根证书
+1、 生成根证书私钥
+    命令：$ openssl genrsa -des3 -out rootCA.private.key 2048
+    需要输入保护密码，例如: TonlyDebug123Key
+2、生成更证书请求(CSR)文件，命令: 
+    $ openssl req -new -key rootCA.private.key -out rootCA.cert.req.csr -config /usr/lib/ssl/openssl.cnf
+    /usr/local/ssl/openssl.cnf 是OpenSSL的安装配置文件
+3、签发根证书(自签名)，命令:
+    $ openssl req -x509 -days 666 -key rootCA.private.key -in rootCA.cert.req.csr -out rootCA.cert.ctr -config /usr/lib/ssl/openssl.cnf
+
+########################################
+# 服务器证书
+1、生成请求证书私钥
+命令：$ openssl genrsa -out server.private.key 2048
+2、生成请求证书(CSR)文件
+命令: $ openssl req -new -key server.private.key -out server.cert.req.csr
+3、使用根证书(rootCA.cert.ctr)签发下级证书(server.cert.ctr)
+命令: 
+$ openssl x509 -req -in server.cert.req.csr -out server.cert.ctr -signkey server.private.key -CA rootCA.cert.ctr -CAkey rootCA.private.key -CAcreateserial -days 990
